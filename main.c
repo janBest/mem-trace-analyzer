@@ -1,25 +1,38 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "zipf.h"
 
 int main(void){
 
-	printf("x=%lf s=%lf N=%lf cdf=%lf\n", 
-			5000.0, 0.0, 10000.0, cdf(5000.0, 0.0, 10000.0));
-	printf("x=%lf s=%lf N=%lf cdf=%lf\n", 
-			9000000.0, 0.5, 10000000.0, cdf(9000000, 0.5, 10000000.0));
-	printf("x=%lf s=%lf N=%lf cdf=%lf\n", 
-			2.0, 2.0, 1000.0, cdf(2.0, 2.0, 1000.0));
-	printf("x=%lf s=%lf N=%lf cdf=%lf\n", 
-			101.0, 2.0, 100000.0, cdf(101.0, 2.0, 100000.0));
+	double p , s, N;
+	uint64_t x;
 
-	printf("p=%lf s=%lf N=%lf x=%lf\n", 
-			9.5, 0.0, 10000.0, inverse_cdf(0.5, 0.0, 10000.0));
-	printf("p=%lf s=%lf N=%lf x=%lf\n", 
-			0.948671, 0.5, 10000000.0, inverse_cdf(0.948671, 0.5, 10000000.0));
-	printf("p=%lf s=%lf N=%lf x=%lf\n", 
-			0.762958, 2.0, 1000.0, inverse_cdf(0.762958, 2.0, 1000.0));
-	printf("p=%lf s=%lf N=%lf x=%lf\n", 
-			0.994095, 2.0, 100000.0, inverse_cdf(0.994095, 2.0, 100000.0));
+	int i = 0;
+
+	N = 100000.0;
+	s = 1.001;
+	
+	/*
+	for(i = 1; i <= N; i++){
+		p = cdf((double)i, s, N);
+		x = inverse_cdf(p, s, N);
+		printf("x=%lf s=%lf N=%lf p=%lf x=%lld\n", 
+			(double)i, s, N, p, x);
+
+	}
+	*/
+
+	srand(time(NULL));
+
+	for(i = 1; i <= N; i++){
+		p = (double)rand() / RAND_MAX;
+		x = inverse_cdf(p, s, N);
+		printf("i=%lf s=%lf N=%lf p=%lf x=%lld\n", 
+			(double)i, s, N, p, x);
+	}
 
 	return 1;
 }

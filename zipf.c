@@ -15,7 +15,7 @@ double cdf(double x, double s, double N){
 }
 
 
-double inverse_cdf(double p, double s, double N){
+uint64_t inverse_cdf(double p, double s, double N){
 	double x = N / 2;
 	double D = 12 * (pow(N, 1 - s) - 1) / (1 - s) + 6 
 		- 6 * pow(N, -s) + s - pow(N, -1 - s) * s;
@@ -34,7 +34,7 @@ double inverse_cdf(double p, double s, double N){
 		newx = x - a / b;
 		newx = (newx < 1) ? 1 : newx;
 		if(fabs(newx - x) <= 0.01)
-			return newx;
+			return (uint64_t)newx;
 		x = newx;
 	}
 

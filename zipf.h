@@ -8,10 +8,11 @@
 
 
 #include <math.h>
+#include <stdint.h>
 
 
 double cdf(double x, double s, double N);
-double inverse_cdf(double p, double s, double N);
+uint64_t inverse_cdf(double p, double s, double N);
 
 
 #endif
