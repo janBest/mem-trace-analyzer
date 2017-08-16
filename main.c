@@ -4,34 +4,29 @@
 #include <time.h>
 
 #include "zipf.h"
+#include "hash.h"
 
 int main(void){
 
-	double p , s, N;
-	uint64_t x;
-
+	double st, ss;
+	uint64_t N, M;
+	struct zipf_handler td_zh, sd_zh;
 	int i = 0;
 
-	N = 100000.0;
-	s = 1.001;
+	N = 100000;
+	M = 100000;
+	st = 1.001;
+	ss = 1.001;
 	
-	/*
-	for(i = 1; i <= N; i++){
-		p = cdf((double)i, s, N);
-		x = inverse_cdf(p, s, N);
-		printf("x=%lf s=%lf N=%lf p=%lf x=%lld\n", 
-			(double)i, s, N, p, x);
 
-	}
-	*/
 
 	srand(time(NULL));
+	zipf_init(&td_zh, st, N);
+	zipf_init(&sd_zh, ss, M);
 
 	for(i = 1; i <= N; i++){
-		p = (double)rand() / RAND_MAX;
-		x = inverse_cdf(p, s, N);
-		printf("i=%lf s=%lf N=%lf p=%lf x=%lld\n", 
-			(double)i, s, N, p, x);
+		printf("i=%d x=%lld\n", 
+			i, zipf_generator(&zh));
 	}
 
 	return 1;

@@ -39,3 +39,13 @@ uint64_t inverse_cdf(double p, double s, double N){
 	}
 
 }
+
+void zipf_init(struct zipf_handler *zh, double s, uint64_t N){
+	zh->N = N;
+	zh->s = s;
+}
+
+uint64_t zipf_generator(struct zipf_handler *zh){
+	double p = (double)rand() / RAND_MAX;
+	return inverse_cdf(p, zh->s, (double)zh->N);
+}
