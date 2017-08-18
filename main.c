@@ -15,10 +15,10 @@ int main(void){
 
 
 
-	N = 400;
-	M = 400;
-	st = 0;
-	ss = 3.01;
+	N = 4000000;
+	M = 4*1024*1024;
+	st = 1.01;
+	ss = 0;
 	
 	srand(time(NULL));
 

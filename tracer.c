@@ -45,6 +45,7 @@ struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t)
 	struct trace_t *nt, *ft;
 	struct list_head *l;
 	int64_t td, sd;
+	uint64_t regen_sd_count = 0;
 
 	if((l = hash_lookup(g->n_ht, t->n + 1, comp_n))){
 		nt = list_entry(l, struct trace_t, n_hash_list);
@@ -53,35 +54,37 @@ struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t)
 	} else{
 
 regenerate_sd:
-		
-		sd = zipf_generator(&g->sd_zh);
+		sd = ((regen_sd_count++) <= 4) ? 
+			zipf_generator(&g->sd_zh):(random()%(g->M/4));
+
+		//sd = zipf_generator(&g->sd_zh);
 		sd = ((rand() % 100) < 50)? sd : -sd; //the probability of sd being possitive and negative is equal
 		
 		if(((int64_t)t->addr + sd) < 0 
 				|| (t->addr + sd) >= g->M){
-			printf("---regenerate sd a %lld\n", t->addr + sd);
+//			printf("---regenerate sd a %lld\n", t->addr + sd);
 			goto regenerate_sd;
-		} 
+ 		} 
 
 		if(hash_lookup(g->a_ht, t->addr + sd, comp_a)){
-			printf("---regenerate sd b %lld\n", t->addr + sd);
+//			printf("---regenerate sd b %lld\n", t->addr + sd);
 			goto regenerate_sd;
-		} 
+ 		} 
 
 		nt = create_trace(t->n + 1, t->addr + sd);
- 	} 
+  	} 
 
 regenate_td:
 	td = zipf_generator(&g->td_zh);
 	
 	if(hash_lookup(g->n_ht, nt->n + td, comp_n)){
-		printf("---regenerate td  %lld\n", nt->n + td);
+//		printf("---regenerate td  %lld\n", nt->n + td);
 		goto regenate_td;
-	} 
+ 	} 
 	
 	ft = create_trace(nt->n + td, nt->addr);
 
-	printf("---future access %lld %lld\n", ft->n, ft->addr);
+//	printf("---future access %lld %lld\n", ft->n, ft->addr);
 
 
 	hash_insert(g->n_ht, ft->n, &ft->n_hash_list);
