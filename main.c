@@ -3,31 +3,40 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "zipf.h"
-#include "hash.h"
+#include "tracer.h"
 
 int main(void){
 
 	double st, ss;
 	uint64_t N, M;
-	struct zipf_handler td_zh, sd_zh;
 	int i = 0;
+	struct trace_t* t, *nt;
+	struct trace_generator* g;
 
-	N = 100000;
-	M = 100000;
-	st = 1.001;
-	ss = 1.001;
+
+
+	N = 400;
+	M = 400;
+	st = 0;
+	ss = 3.01;
 	
-
-
 	srand(time(NULL));
-	zipf_init(&td_zh, st, N);
-	zipf_init(&sd_zh, ss, M);
 
-	for(i = 1; i <= N; i++){
-		printf("i=%d x=%lld\n", 
-			i, zipf_generator(&zh));
+	g = create_generator(N, M, st, ss);
+	
+	t = create_trace(1, 0);
+
+
+
+	for(i = 2; i <= N; i++){
+		printf("%lld %lld\n", 
+			t->n, t->addr);
+		nt = generate_one_trace(g, t);
+		free(t);
+		t = nt;
 	}
+	printf("%lld %lld\n", 
+		t->n, t->addr);
 
 	return 1;
 }
