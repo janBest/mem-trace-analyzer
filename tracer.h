@@ -29,8 +29,7 @@ struct trace_generator* create_generator(uint64_t N, uint64_t M, double st, doub
 void free_generator(struct trace_generator *g);
 struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t);
 
-
-
-
+uint32_t comp_n(uint64_t n, struct list_head *l);
+uint32_t comp_a(uint64_t addr, struct list_head *l);
 
 #endif

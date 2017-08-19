@@ -1,7 +1,7 @@
 
 #include "zipf.h"
 
-double cdf(double x, double s, double N){
+double zipf_cdf(double x, double s, double N){
 	
 	double a, b;
 	

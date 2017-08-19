@@ -5,8 +5,12 @@
 #include <unistd.h>
 
 #include "tracer.h"
+#include "instrumentor.h"
+#include "checker.h"
 
 extern char *optarg;
+
+
 
 int main(int argc, char **argv){
 
@@ -15,6 +19,7 @@ int main(int argc, char **argv){
 	int i = 0;
 	struct trace_t* t, *nt;
 	struct trace_generator* g;
+	struct instrumentor *checker;
 	int c;
 
 
@@ -47,19 +52,26 @@ int main(int argc, char **argv){
 	printf("N:%lld M:%lld ss:%lf st:%lf\n", N, M, st, ss);
 
 	srand(time(NULL));
+	checker = checker_create(N, st, M, ss);
 	g = create_generator(N, M, st, ss);
 	t = create_trace(1, 0);
 
-	for(i = 2; i <= N; i++){
-		printf("%lld %lld\n", 
-			t->n, t->addr);
+	for(i = 2; i <= 2 * N; i++){
+//		printf("%lld %lld\n", 
+//			t->n, t->addr);
+		checker->func->instrument(checker->meta, t);
 		nt = generate_one_trace(g, t);
-		free(t);
+		//free(t);
 		t = nt;
-	}
-	printf("%lld %lld\n", 
-		t->n, t->addr);
+	} 
+//	printf("%lld %lld\n", 
+//		t->n, t->addr);
+	checker->func->instrument(checker->meta, t);
+	checker->func->end(checker->meta);
+
 
 	return 1;
 }
+
+
 

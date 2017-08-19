@@ -16,7 +16,7 @@ struct zipf_handler{
 	double s;
 };
 
-double cdf(double x, double s, double N);
+double zipf_cdf(double x, double s, double N);
 uint64_t inverse_cdf(double p, double s, double N);
 
 void zipf_init(struct zipf_handler *zh, double s, uint64_t N);

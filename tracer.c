@@ -3,11 +3,14 @@
 
 #include <stdio.h>
 
+
+
 uint32_t comp_n(uint64_t n, struct list_head *l){
 	struct trace_t *t;
 	t = list_entry(l, struct trace_t, n_hash_list);
 	return (t->n == n);
 }
+
 
 uint32_t comp_a(uint64_t addr, struct list_head *l){
 	struct trace_t *t;
@@ -53,32 +56,51 @@ struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t)
 		hash_remove(g->a_ht, nt->addr, comp_a);
 	} else{
 
-regenerate_sd:
-		sd = ((regen_sd_count++) <= 4) ? 
-			zipf_generator(&g->sd_zh):(random()%(g->M/4));
+regenerate_sd1:
+		
+		sd = zipf_generator(&g->sd_zh);
+
+//		sd = ((regen_sd_count++) <= 4) ? 
+//			zipf_generator(&g->sd_zh):(random()%(g->M/4));
+
 
 		//sd = zipf_generator(&g->sd_zh);
 		sd = ((rand() % 100) < 50)? sd : -sd; //the probability of sd being possitive and negative is equal
+
+regenerate_sd2:
+		
+//		printf("---generate sd 1 %lld\n", sd);
 		
 		if(((int64_t)t->addr + sd) < 0 
 				|| (t->addr + sd) >= g->M){
-//			printf("---regenerate sd a %lld\n", t->addr + sd);
-			goto regenerate_sd;
- 		} 
-
+//			printf("---regenerate sd a %lld, %lld\n", t->addr, sd);
+		
+			if(((int64_t)t->addr - sd) >= 0 
+ 				&& (t->addr - sd) < g->M){
+				sd = -sd;
+			} else {
+				goto regenerate_sd1;
+			}
+  		} 
+ 
+//		printf("---generate sd 2 %lld\n", sd);
+		
 		if(hash_lookup(g->a_ht, t->addr + sd, comp_a)){
-//			printf("---regenerate sd b %lld\n", t->addr + sd);
-			goto regenerate_sd;
- 		} 
-
+//			printf("---regenerate sd b %lld, %lld\n", t->addr, sd);
+			sd = llabs(sd);
+			sd++;
+			goto regenerate_sd2;
+  		} 
+ 
 		nt = create_trace(t->n + 1, t->addr + sd);
   	} 
 
 regenate_td:
 	td = zipf_generator(&g->td_zh);
-	
-	if(hash_lookup(g->n_ht, nt->n + td, comp_n)){
-//		printf("---regenerate td  %lld\n", nt->n + td);
+	//printf("---generate td %lld\n", td);
+	 if(hash_lookup(g->n_ht, nt->n + td, comp_n)){
+	//	printf("---regenerate td  %lld + %lld\n", nt->n, td);
+	//	td++;
 		goto regenate_td;
  	} 
 	
