@@ -45,7 +45,7 @@ struct trace_t *create_trace(uint64_t n, uint64_t addr){
 }
 
 struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t){
-	struct trace_t *nt, *ft;
+	struct trace_t *nt, *ft, *tmp;
 	struct list_head *l;
 	int64_t td, sd;
 	uint64_t regen_sd_count = 0;
@@ -69,29 +69,31 @@ regenerate_sd1:
 
 regenerate_sd2:
 		
-//		printf("---generate sd 1 %lld\n", sd);
+		printf("%lld ---generate sd 1 %lld\n", t->n, sd);
 		
 		if(((int64_t)t->addr + sd) < 0 
 				|| (t->addr + sd) >= g->M){
-//			printf("---regenerate sd a %lld, %lld\n", t->addr, sd);
+			printf("%lld ---regenerate sd a %lld, %lld\n", t->n, t->addr, sd);
 		
 			if(((int64_t)t->addr - sd) >= 0 
  				&& (t->addr - sd) < g->M){
 				sd = -sd;
 			} else {
 				goto regenerate_sd1;
-			}
-  		} 
+ 			}
+   		} 
  
-//		printf("---generate sd 2 %lld\n", sd);
-		
-		if(hash_lookup(g->a_ht, t->addr + sd, comp_a)){
-//			printf("---regenerate sd b %lld, %lld\n", t->addr, sd);
+		printf("%lld ---generate sd 2 %lld\n", t->n, sd);
+
+
+		if((l = hash_lookup(g->a_ht, t->addr + sd, comp_a))){
+			tmp = list_entry(l, struct trace_t, a_hash_list);
+			printf("%lld ---regenerate sd b %lld + %lld, %lld\n", t->n, t->addr, sd, tmp->n);
 			sd = llabs(sd);
 			sd++;
 			goto regenerate_sd2;
   		} 
- 
+
 		nt = create_trace(t->n + 1, t->addr + sd);
   	} 
 
@@ -106,7 +108,7 @@ regenate_td:
 	
 	ft = create_trace(nt->n + td, nt->addr);
 
-//	printf("---future access %lld %lld\n", ft->n, ft->addr);
+	printf("---future access %lld %lld\n", ft->n, ft->addr);
 
 
 	hash_insert(g->n_ht, ft->n, &ft->n_hash_list);

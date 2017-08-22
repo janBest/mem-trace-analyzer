@@ -49,7 +49,7 @@ int main(int argc, char **argv){
 		}
 	}
 
-	printf("N:%lld M:%lld ss:%lf st:%lf\n", N, M, st, ss);
+	printf("N:%lld M:%lld ss:%lf st:%lf\n", N, M, ss, st);
 
 	srand(time(NULL));
 	checker = checker_create(N, st, M, ss);
@@ -57,13 +57,13 @@ int main(int argc, char **argv){
 	t = create_trace(1, 0);
 
 	for(i = 2; i <= 2 * N; i++){
-//		printf("%lld %lld\n", 
-//			t->n, t->addr);
+		printf("%lld %lld\n", 
+			t->n, t->addr);
 		checker->func->instrument(checker->meta, t);
 		nt = generate_one_trace(g, t);
 		//free(t);
 		t = nt;
-	} 
+	}  
 //	printf("%lld %lld\n", 
 //		t->n, t->addr);
 	checker->func->instrument(checker->meta, t);
