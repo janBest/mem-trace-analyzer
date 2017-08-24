@@ -6,7 +6,7 @@
 
 struct instr_func{
 	void (*begin)(void *);
-	void (*instrument)(void *, struct trace_t *);
+	void (*instrument)(void *, struct trace_t *, int64_t);
 	void (*end)(void *);
 };
 

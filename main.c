@@ -11,14 +11,22 @@
 extern char *optarg;
 
 
+void rreplay(void *arg, struct trace_t *t, int64_t n){
+	
+	struct instrumentor *checker = (struct instrumentor *)arg;
+
+//	printf("%lld %lld\n", n, t->addr);
+	checker->func->instrument(checker->meta, t, n);
+}
+
+
 
 int main(int argc, char **argv){
 
 	double st, ss;
 	uint64_t N, M;
 	int i = 0;
-	struct trace_t* t, *nt;
-	struct trace_generator* g;
+	struct tgen* g;
 	struct instrumentor *checker;
 	int c;
 
@@ -53,22 +61,15 @@ int main(int argc, char **argv){
 
 	srand(time(NULL));
 	checker = checker_create(N, st, M, ss);
-	g = create_generator(N, M, st, ss);
-	t = create_trace(1, 0);
 
-	for(i = 2; i <= 2 * N; i++){
-		printf("%lld %lld\n", 
-			t->n, t->addr);
-		checker->func->instrument(checker->meta, t);
-		nt = generate_one_trace(g, t);
-		//free(t);
-		t = nt;
-	}  
-//	printf("%lld %lld\n", 
-//		t->n, t->addr);
-	checker->func->instrument(checker->meta, t);
+	g = tgen_create(N, M, st, ss);
+	tgen_work(g, 2 * N);
+	tgen_replay(g, rreplay, (void *)checker);
+	
 	checker->func->end(checker->meta);
 
+	tgen_free(g);
+	
 
 	return 1;
 }

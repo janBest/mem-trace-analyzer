@@ -7,7 +7,7 @@ struct ck_meta{
 	struct hash_t *history;
 	uint64_t *df;
 	uint64_t *dd;
-	struct trace_t *last_trace;
+	int64_t last_addr;
 	uint64_t N;
 	double st;
 	uint64_t M;

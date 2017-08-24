@@ -5,10 +5,13 @@
 #include "list.h"
 #include "hash.h"
 #include "zipf.h"
+#include "bmap.h"
 
-struct trace_generator{
-	struct hash_t *n_ht;
-	struct hash_t *a_ht;
+struct tgen{
+	struct trace_t *traces;
+	int64_t tsz;
+
+	BMAP *bm;
 	uint64_t N;
 	uint64_t M;
 	double ss;
@@ -18,18 +21,21 @@ struct trace_generator{
 };
 
 struct trace_t{
-	uint64_t n;
+	int64_t seq;
 	uint64_t addr;
-	struct list_head n_hash_list;
-	struct list_head a_hash_list;
+	struct list_head list;
 };
 
-struct trace_t *create_trace(uint64_t n, uint64_t addr);
-struct trace_generator* create_generator(uint64_t N, uint64_t M, double st, double ss);
-void free_generator(struct trace_generator *g);
-struct trace_t *generate_one_trace(struct trace_generator *g, struct trace_t *t);
 
-uint32_t comp_n(uint64_t n, struct list_head *l);
-uint32_t comp_a(uint64_t addr, struct list_head *l);
+struct tgen* tgen_create(uint64_t N, uint64_t M, double st, double ss);
+void tgen_free(struct tgen *g);
+void tgen_work(struct tgen *g, int64_t n);
+void tgen_replay(struct tgen *g, void (*replay)(void *arg, struct trace_t *, int64_t n), void *arg);
+
+struct trace_t *tgen_get_trace(struct tgen *g, uint64_t n);
+
+
+
+
 
 #endif

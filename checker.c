@@ -5,32 +5,34 @@
 #include <stdlib.h>
 
 
+uint32_t comp(uint64_t addr, struct list_head *l){
+	struct trace_t *t;
+	t = list_entry(l, struct trace_t, list);
+	return (t->addr == addr);
+}
 
 void ck_begin(void *meta){
-	struct ck_meta* m = (struct ck_meta*)meta;
+	//struct ck_meta* m = (struct ck_meta*)meta;
 		
 }
 
-void ck_instrument(void *meta, struct trace_t *t){
+void ck_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct ck_meta* m = (struct ck_meta*)meta;
 	struct list_head *l;
 	struct trace_t *pt;
-	uint64_t last_addr = 0;
+	//uint64_t last_addr = 0;
+	
 
-	if((l = hash_lookup(m->history, t->addr, comp_a))){
-		pt = list_entry(l, struct trace_t, a_hash_list);
-		hash_remove(m->history, pt->addr, comp_a);
-		m->df[(t->n - pt->n)] ++;
+	if((l = hash_lookup(m->history, t->addr, comp))){ 
+		pt = list_entry(l, struct trace_t, list);
+		hash_remove(m->history, pt->addr, comp);
+		m->df[(t->seq - pt->seq)] ++;
+	} else {
+		m->dd[llabs((int64_t)t->addr - (int64_t)m->last_addr)]++;
+		m->last_addr = t->addr;
 	} 
-	//else{
-	//	m->df[m->N]++;
-	//}
-	hash_insert(m->history, t->addr, &t->a_hash_list);
 
-
-	last_addr = m->last_trace ? m->last_trace->addr : 0;
-	m->dd[llabs((int64_t)last_addr - (int64_t)t->addr)]++;
-	m->last_trace = t;
+	hash_insert(m->history, t->addr, &t->list);
 
 }
 
@@ -82,7 +84,7 @@ struct instrumentor* checker_create(uint64_t N, double st, uint64_t M, double ss
 	m->st = st;
 	m->M = M;
 	m->ss = ss;
-	m->last_trace = NULL;
+	m->last_addr = 0;
 	checker->meta = m;
 	checker->func = &ck_func;
 	return checker;
