@@ -9,6 +9,7 @@
 #include "instrumentor.h"
 #include "checker.h"
 #include "ckpt_instr.h"
+#include "logging_instr.h"
 
 #define INSTR_MAX 10
 
@@ -58,11 +59,10 @@ void rreplay(void *arg, struct trace_t *t, int64_t n){
 int main(int argc, char **argv){
 
 	double st, ss;
-	uint64_t N, M;
+	uint64_t N, M, n;
 	int r;
 	int i = 0;
 	struct tgen* g;
-	struct instrumentor *checker;
 	struct replay_ctx ctx;
 	int c;
 
@@ -72,8 +72,9 @@ int main(int argc, char **argv){
 	st = 0;
 	ss = 0;
 	r = 0;
+	n = 10;
 
-	while ((c = getopt (argc, argv, "N:M:t:s:r:")) != -1){ 
+	while ((c = getopt (argc, argv, "N:M:t:s:r:n:")) != -1){ 
 		switch(c){
 			case 'N':
 				N = strtoull(optarg, 0, 10);
@@ -92,20 +93,24 @@ int main(int argc, char **argv){
 			case 'r':
 				r = atoi(optarg);
 				break;
+			case 'n':
+				n = strtoull(optarg, 0, 10);
+				break;
 			default:
 				return 0;
 		
 		}
 	}
 
-	printf("N:%lld M:%lld ss:%lf st:%lf r:%d\n", N, M, ss, st, r);
+	printf("N:%lld M:%lld ss:%lf st:%lf r:%d n:%lld\n", N, M, ss, st, r, n);
 
 	srand(time(NULL));
 	
 	memset(&ctx, 0, sizeof(struct replay_ctx));
 	
-	instrumentor_push(&ctx, checker_create(N, st, M, ss));
-	instrumentor_push(&ctx, ckpt_create(10, M));
+	//instrumentor_push(&ctx, checker_create(N, st, M, ss));
+	instrumentor_push(&ctx, ckpt_create(n, M));
+	instrumentor_push(&ctx, logging_create(n));
 
 
 	g = tgen_create(N, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE

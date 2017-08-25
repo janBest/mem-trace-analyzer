@@ -28,8 +28,8 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 	if(m->seq > m->len){
 		m->ap_seq ++;
 		m->seq = 0;	
-	}
-
+	} 
+	
 	if((l = hash_lookup(m->vtable, vhpage, comp_vhpage))){ 
 		mapping = list_entry(l, struct mapping_t, list);
 		if((t->di == WRITE) 
@@ -38,18 +38,18 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 			mapping->phpage = m->max_phpage ++;
 			mapping->last_write_ap = m->ap_seq;
 			m->remap_count++;
-		}
+	 	}
 		
 		if((t->di == READ) && 
 				(mapping->last_read_ap != m->ap_seq)){
 			mapping->last_read_ap = m->ap_seq;
 			m->addr_count++;
-		} 
+	 	} 
 		
 		phpage = mapping->phpage;
 		
 	} else{
-		if(t->di == WRITE){
+	 	if(t->di == WRITE){
 			mapping = (struct mapping_t*)malloc(sizeof(struct mapping_t)); 
 			mapping->vhpage = vhpage;
 			mapping->phpage = m->max_phpage ++;
@@ -64,8 +64,9 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 			m->addr_count++;
 			phpage = vhpage;
 		}		
- 	}
- 
+ 	} 
+	
+	(t->di == READ)?m->reads++:m->writes++;
 	printf("-->%lld %lld %c %lld\n", n, phpage * PAGE_SIZE + offset, 
 			(t->di == READ)?'r':'w', m->ap_seq);
 
@@ -76,8 +77,10 @@ void ckpt_end(void *meta){
 	
 	struct ckpt_meta* m = (struct ckpt_meta*)meta;
 
-	printf("active period: %lld remap: %lld addr translation: %lld\n", 
-			m->ap_seq, m->remap_count, m->addr_count);
+	printf("active periods: %lld remap: %lld addr translation: %lld reads: %lld writes: %lld\n", 
+			m->ap_seq, m->remap_count, m->addr_count,
+			m->reads, m->writes);
+
 }
 
 
@@ -90,7 +93,7 @@ struct instrumentor* ckpt_create(uint64_t ckpt_len, uint64_t vh_size){
 	struct instrumentor* i = (struct instrumentor*)malloc(sizeof(struct instrumentor));
 	struct ckpt_meta* m = (struct ckpt_meta*)malloc(sizeof(struct ckpt_meta));
 	
-	m->vtable = hash_create(ckpt_len / 2);
+	m->vtable = hash_create(1000); //eh... looks odd
 	m->ap_seq = 0;
 	m->len = ckpt_len;
 	m->seq = 0;
@@ -98,6 +101,8 @@ struct instrumentor* ckpt_create(uint64_t ckpt_len, uint64_t vh_size){
 	m->remap_count = 0;
 	m->addr_count = 0;
 	m->vh_size = vh_size;
+	m->reads=0;
+	m->writes=0;
 	i->meta = m;
 	i->func = &ckpt_func;
 	return i;

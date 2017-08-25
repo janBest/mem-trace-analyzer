@@ -4,6 +4,15 @@
 #include <stdio.h>
 
 
+uint32_t comp_addr(uint64_t addr, struct list_head *l){
+	struct wrapper_t* wrapper;
+	struct trace_t *t;
+	wrapper = list_entry(l, struct wrapper_t, list);
+	t = (struct trace_t *)wrapper->data;
+
+	return (t->addr == addr);
+}
+
 
 
 

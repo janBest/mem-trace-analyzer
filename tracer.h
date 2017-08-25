@@ -10,6 +10,9 @@
 #define READ  1
 #define WRITE 2
 
+#define CACHELINE_SIZE 64
+#define PAGE_SIZE (4096 / CACHELINE_SIZE)
+
 struct tgen{
 	struct trace_t *traces;
 	int64_t tsz;
@@ -30,9 +33,12 @@ struct trace_t{
 	int64_t seq;
 	uint64_t addr;
 	uint8_t di; //1 read, 2 write
-	struct list_head list;
 };
 
+struct wrapper_t{
+	struct list_head list;
+	void* data;
+};
 
 struct tgen* tgen_create(uint64_t N, uint64_t M, double st, double ss, int r);
 void tgen_free(struct tgen *g);
@@ -41,6 +47,8 @@ void tgen_replay(struct tgen *g, void (*replay)(void *arg, struct trace_t *, int
 
 struct trace_t *tgen_get_trace(struct tgen *g, uint64_t n);
 
+
+uint32_t comp_addr(uint64_t addr, struct list_head *l);
 
 
 

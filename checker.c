@@ -4,13 +4,6 @@
 #include "checker.h"
 #include <stdlib.h>
 
-
-uint32_t comp(uint64_t addr, struct list_head *l){
-	struct trace_t *t;
-	t = list_entry(l, struct trace_t, list);
-	return (t->addr == addr);
-}
-
 void ck_begin(void *meta){
 	//struct ck_meta* m = (struct ck_meta*)meta;
 		
@@ -18,21 +11,24 @@ void ck_begin(void *meta){
 
 void ck_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct ck_meta* m = (struct ck_meta*)meta;
+	struct wrapper_t* wrapper;
 	struct list_head *l;
 	struct trace_t *pt;
 	//uint64_t last_addr = 0;
 	
 
-	if((l = hash_lookup(m->history, t->addr, comp))){ 
-		pt = list_entry(l, struct trace_t, list);
-		hash_remove(m->history, pt->addr, comp);
+	if((l = hash_lookup(m->history, t->addr, comp_addr))){ 
+		wrapper = list_entry(l, struct wrapper_t, list);
+		pt = (struct trace_t*) wrapper->data;
+		hash_remove(m->history, pt->addr, comp_addr);
 		m->df[(t->seq - pt->seq)] ++;
 	} else {
 		m->dd[llabs((int64_t)t->addr - (int64_t)m->last_addr)]++;
 		m->last_addr = t->addr;
 	} 
-
-	hash_insert(m->history, t->addr, &t->list);
+	wrapper = (struct wrapper_t*)malloc(sizeof(struct wrapper_t));
+	wrapper->data = (void*) t;
+	hash_insert(m->history, t->addr, &wrapper->list);
 
 }
 
