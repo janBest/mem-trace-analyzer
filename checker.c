@@ -13,21 +13,21 @@ void ck_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct ck_meta* m = (struct ck_meta*)meta;
 	struct wrapper_t* wrapper;
 	struct list_head *l;
-	struct trace_t *pt;
+//	struct trace_t *pt;
 	//uint64_t last_addr = 0;
 	
 
 	if((l = hash_lookup(m->history, t->addr, comp_addr))){ 
 		wrapper = list_entry(l, struct wrapper_t, list);
-		pt = (struct trace_t*) wrapper->data;
-		hash_remove(m->history, pt->addr, comp_addr);
-		m->df[(t->seq - pt->seq)] ++;
+		hash_remove(m->history, wrapper->addr, comp_addr);
+		m->df[(t->seq - wrapper->seq)] ++;
 	} else {
 		m->dd[llabs((int64_t)t->addr - (int64_t)m->last_addr)]++;
 		m->last_addr = t->addr;
 	} 
 	wrapper = (struct wrapper_t*)malloc(sizeof(struct wrapper_t));
-	wrapper->data = (void*) t;
+	wrapper->addr = t->addr;
+	wrapper->seq = t->seq;
 	hash_insert(m->history, t->addr, &wrapper->list);
 
 }

@@ -37,7 +37,8 @@ struct trace_t{
 
 struct wrapper_t{
 	struct list_head list;
-	void* data;
+	uint64_t addr;
+	uint64_t seq;
 };
 
 struct tgen* tgen_create(uint64_t N, uint64_t M, double st, double ss, int r);

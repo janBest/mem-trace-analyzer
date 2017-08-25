@@ -14,6 +14,8 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct logging_meta* m = (struct logging_meta*)meta;
 	struct wrapper_t* wrapper;
 
+	printf("log %lld %lld %c\n", n, t->addr,
+			(t->di == READ)? 'r':'w');
 	//update transaction info
 	m->seq ++;
 	if(m->seq > m->len){
@@ -30,7 +32,7 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 			//new cacheline dirtied in a transaction
 			m->flushes ++;
 			wrapper = (struct wrapper_t *)malloc(sizeof(struct wrapper_t));
-			wrapper->data = (void *)t;
+			wrapper->addr = t->addr;
 			hash_insert(m->line_track, t->addr, &wrapper->list);
 		} 
 	}

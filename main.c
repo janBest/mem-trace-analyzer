@@ -46,8 +46,8 @@ void rreplay(void *arg, struct trace_t *t, int64_t n){
     struct instrumentor *instr;	
 	struct replay_ctx *ctx = (struct replay_ctx *)arg;
 
-	printf("%lld %lld %c\n", n, t->addr,
-			(t->di == READ)? 'r':'w');
+//	printf("%lld %lld %c\n", n, t->addr,
+//			(t->di == READ)? 'r':'w');
 
 	for(i = 0; i < ctx->count; i++){
 		instr = ctx->instr[i];
@@ -113,6 +113,7 @@ int main(int argc, char **argv){
 	instrumentor_push(&ctx, logging_create(n));
 	instrumentor_push(&ctx, cpu_create(N, 256));
 	instrumentor_push(&ctx, ckpt_create(n, M));
+	instrumentor_push(&ctx, cpu_create(N, 256));
 
 
 	g = tgen_create(N, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE

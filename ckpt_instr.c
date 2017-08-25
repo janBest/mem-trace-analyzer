@@ -23,6 +23,10 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct list_head *l;
 	struct mapping_t *mapping;
 
+
+	printf("ckpt %lld %lld %c\n", n, t->addr,
+			(t->di == READ)? 'r':'w');
+
 	m->seq ++;
 
 	if(m->seq > m->len){
@@ -67,9 +71,9 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
  	} 
 	
 	(t->di == READ)?m->reads++:m->writes++;
-	printf("-->%lld %lld %c %lld\n", n, phpage * PAGE_SIZE + offset, 
-			(t->di == READ)?'r':'w', m->ap_seq);
-
+//	printf("-->%lld %lld %c %lld\n", n, phpage * PAGE_SIZE + offset, 
+//			(t->di == READ)?'r':'w', m->ap_seq);
+	t->addr = phpage * PAGE_SIZE + offset;
 	
 }
 

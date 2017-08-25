@@ -12,18 +12,22 @@ void cpu_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct cpu_meta* m = (struct cpu_meta*)meta;
 	struct wrapper_t* wrapper;
 	struct list_head *l;
-	struct trace_t *pt;
+//	struct trace_t *pt;
 	//uint64_t last_addr = 0;
 	
+	printf("cpu %lld %lld %c\n", n, t->addr,
+			(t->di == READ)? 'r':'w');
 
 	if((l = hash_lookup(m->history, t->addr, comp_addr))){ 
 		wrapper = list_entry(l, struct wrapper_t, list);
-		pt = (struct trace_t*) wrapper->data;
-		hash_remove(m->history, pt->addr, comp_addr);
-		m->df[(t->seq - pt->seq)] ++;
+		hash_remove(m->history, wrapper->addr, comp_addr);
+		printf("<-cpu %lld %lld\n", wrapper->seq, wrapper->addr);
+		m->df[(t->seq - wrapper->seq)] ++;
+		free(wrapper);
 	}  
 	wrapper = (struct wrapper_t*)malloc(sizeof(struct wrapper_t));
-	wrapper->data = (void*) t;
+	wrapper->addr = t->addr;
+	wrapper->seq = t->seq;
 	hash_insert(m->history, t->addr, &wrapper->list);
 
 }
@@ -40,6 +44,11 @@ void cpu_end(void *meta){
 		cdf[i] = cdf[i-1] + m->df[i];
 		count +=  m->df[i];
 	}
+
+//	printf("-----------td------------\n");
+//	for(i = 1; i <= m->N; i++){
+//		printf("%lld %0.2lf\n", i, (double)cdf[i]/count);
+//	}
 	
 	printf("L1 miss ratio: %0.2f\n", 1 - (float)cdf[max_reuse]/count);
 	free(cdf);
