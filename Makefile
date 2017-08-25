@@ -3,7 +3,7 @@
 # builds everything and links in test program test_rb
 #
 
-OBJS = main.o hash.o zipf.o bmap.o tracer.o checker.o ckpt_instr.o logging_instr.o
+OBJS = main.o hash.o zipf.o bmap.o tracer.o checker.o ckpt_instr.o logging_instr.o cpu_instr.o
 
 CC = gcc
 
@@ -34,6 +34,8 @@ checker.o: checker.c checker.h instrumentor.h list.h
 ckpt_instr.o: ckpt_instr.c ckpt_instr.h instrumentor.h list.h
 
 logging_instr.o: logging_instr.c logging_instr.h instrumentor.h list.h
+
+cpu_instr.o: cpu_instr.c cpu_instr.h instrumentor.h list.h
 
 
 clean:			

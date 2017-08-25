@@ -42,7 +42,7 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 void logging_end(void *meta){
 	
 	struct logging_meta* m = (struct logging_meta*)meta;
-	printf("tr: %lld flushes: %lld reads:%lld writes:%lld", 
+	printf("tr: %lld flushes: %lld reads:%lld writes:%lld\n", 
 			m->tr_seq, m->flushes, m->reads, m->writes);
 }
 

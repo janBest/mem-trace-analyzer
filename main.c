@@ -8,6 +8,7 @@
 #include "tracer.h"
 #include "instrumentor.h"
 #include "checker.h"
+#include "cpu_instr.h"
 #include "ckpt_instr.h"
 #include "logging_instr.h"
 
@@ -109,8 +110,9 @@ int main(int argc, char **argv){
 	memset(&ctx, 0, sizeof(struct replay_ctx));
 	
 	//instrumentor_push(&ctx, checker_create(N, st, M, ss));
-	instrumentor_push(&ctx, ckpt_create(n, M));
 	instrumentor_push(&ctx, logging_create(n));
+	instrumentor_push(&ctx, cpu_create(N, 256));
+	instrumentor_push(&ctx, ckpt_create(n, M));
 
 
 	g = tgen_create(N, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE
