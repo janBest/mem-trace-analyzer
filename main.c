@@ -3,20 +3,54 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "tracer.h"
 #include "instrumentor.h"
 #include "checker.h"
+#include "ckpt_instr.h"
+
+#define INSTR_MAX 10
 
 extern char *optarg;
 
 
+struct replay_ctx{
+	struct instrumentor *instr[INSTR_MAX];
+	int count;
+};
+
+
+
+bool instrumentor_push(struct replay_ctx *ctx, struct instrumentor *i){
+	if(ctx->count >= INSTR_MAX)
+		return false;
+	ctx->instr[ctx->count++] = i;
+	return true;
+}
+
+struct instrumentor* instrumentor_pop(struct replay_ctx *ctx){
+	if(ctx->count <= 0)
+		return NULL;
+	
+	return ctx->instr[--ctx->count];
+}
+
+
+
 void rreplay(void *arg, struct trace_t *t, int64_t n){
 	
-	struct instrumentor *checker = (struct instrumentor *)arg;
+	int i;
+    struct instrumentor *instr;	
+	struct replay_ctx *ctx = (struct replay_ctx *)arg;
 
-//	printf("%lld %lld\n", n, t->addr);
-	checker->func->instrument(checker->meta, t, n);
+	printf("%lld %lld %c\n", n, t->addr,
+			(t->di == READ)? 'r':'w');
+
+	for(i = 0; i < ctx->count; i++){
+		instr = ctx->instr[i];
+		instr->func->instrument(instr->meta, t, n);
+	}
 }
 
 
@@ -25,9 +59,11 @@ int main(int argc, char **argv){
 
 	double st, ss;
 	uint64_t N, M;
+	int r;
 	int i = 0;
 	struct tgen* g;
 	struct instrumentor *checker;
+	struct replay_ctx ctx;
 	int c;
 
 
@@ -35,8 +71,9 @@ int main(int argc, char **argv){
 	M = 4*1024*1024ll;
 	st = 0;
 	ss = 0;
-	
-	while ((c = getopt (argc, argv, "N:M:t:s:")) != -1){ 
+	r = 0;
+
+	while ((c = getopt (argc, argv, "N:M:t:s:r:")) != -1){ 
 		switch(c){
 			case 'N':
 				N = strtoull(optarg, 0, 10);
@@ -44,6 +81,7 @@ int main(int argc, char **argv){
 			case 'M':
 				M = strtoull(optarg, 0, 10);
 				M = M * 1024 * 1024ll; // MB -> B
+				M /= 64; //B -> cacheline
 				break;
 			case 't':
 				st = strtod(optarg, 0);
@@ -51,25 +89,35 @@ int main(int argc, char **argv){
 			case 's':
 				ss = strtod(optarg, 0);
 				break;
+			case 'r':
+				r = atoi(optarg);
+				break;
 			default:
 				return 0;
 		
 		}
 	}
 
-	printf("N:%lld M:%lld ss:%lf st:%lf\n", N, M, ss, st);
+	printf("N:%lld M:%lld ss:%lf st:%lf r:%d\n", N, M, ss, st, r);
 
 	srand(time(NULL));
-	checker = checker_create(N, st, M, ss);
-
-	g = tgen_create(N, M, st, ss);
-	tgen_work(g, 2 * N);
-	tgen_replay(g, rreplay, (void *)checker);
 	
-	checker->func->end(checker->meta);
+	memset(&ctx, 0, sizeof(struct replay_ctx));
+	
+	instrumentor_push(&ctx, checker_create(N, st, M, ss));
+	instrumentor_push(&ctx, ckpt_create(10, M));
+
+
+	g = tgen_create(N, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE
+	tgen_work(g, N);
+	tgen_replay(g, rreplay, &ctx);
+	
+	for(i = 0; i < ctx.count; i++){
+		ctx.instr[i]->func->end(ctx.instr[i]->meta);
+	}
 
 	tgen_free(g);
-	
+//	checker_free(checker);
 
 	return 1;
 }

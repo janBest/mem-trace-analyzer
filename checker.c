@@ -95,6 +95,7 @@ struct instrumentor* checker_create(uint64_t N, double st, uint64_t M, double ss
 void checker_free(struct instrumentor *checker){
 	struct ck_meta* m = (struct ck_meta*)checker->meta;
 	free(m->df);
+	free(m->dd);
 	hash_destroy(m->history);
 	free(m);
 	free(checker);

@@ -8,7 +8,7 @@
 
 
 struct tgen* tgen_create(uint64_t N, uint64_t M, 
-		double st, double ss){
+		double st, double ss, int r){
 	struct tgen *g = (struct tgen*)malloc(sizeof(struct tgen));
 
 	g->traces = NULL;
@@ -20,6 +20,8 @@ struct tgen* tgen_create(uint64_t N, uint64_t M,
 	g->M = M;
 	g->ss = ss;
 	g->st = st;
+	g->read_ratio = r;
+
 	zipf_init(&g->td_zh, st, N);
 	zipf_init(&g->sd_zh, ss, M);
 	return g;
@@ -40,6 +42,7 @@ void tgen_work(struct tgen *g, int64_t n){
 	
 	g->traces[0].seq = 0;
 	g->traces[0].addr = rand() % g->M;
+	g->traces[0].di = ((rand() % 100) < g->read_ratio) ? READ: WRITE;
 	BMap.set(g->bm, g->traces[0].addr);
 	laddr = g->traces[0].addr;
 //	printf("n %d addr %lld\n", 0, g->traces[0].addr);
@@ -80,6 +83,7 @@ gen_sd_finished:
 			g->traces[i].seq = i;
 			g->traces[i].addr = g->traces[i - td].addr;
 	 	}
+		g->traces[i].di = ((rand() % 100) < g->read_ratio) ? READ: WRITE;
 	}
 //   printf("tried %lld sd chosen %lld avg %0.2f\n", tried, chosen, (float)tried/chosen);	
 	return;

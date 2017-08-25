@@ -7,15 +7,21 @@
 #include "zipf.h"
 #include "bmap.h"
 
+#define READ  1
+#define WRITE 2
+
 struct tgen{
 	struct trace_t *traces;
 	int64_t tsz;
-
+	
 	BMAP *bm;
 	uint64_t N;
 	uint64_t M;
 	double ss;
 	double st;
+	
+	int read_ratio;
+
 	struct zipf_handler td_zh;
 	struct zipf_handler sd_zh;
 };
@@ -23,11 +29,12 @@ struct tgen{
 struct trace_t{
 	int64_t seq;
 	uint64_t addr;
+	uint8_t di; //1 read, 2 write
 	struct list_head list;
 };
 
 
-struct tgen* tgen_create(uint64_t N, uint64_t M, double st, double ss);
+struct tgen* tgen_create(uint64_t N, uint64_t M, double st, double ss, int r);
 void tgen_free(struct tgen *g);
 void tgen_work(struct tgen *g, int64_t n);
 void tgen_replay(struct tgen *g, void (*replay)(void *arg, struct trace_t *, int64_t n), void *arg);
