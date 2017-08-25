@@ -24,8 +24,8 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct mapping_t *mapping;
 
 
-	printf("ckpt %lld %lld %c\n", n, t->addr,
-			(t->di == READ)? 'r':'w');
+//	printf("ckpt %lld %lld %c\n", n, t->addr,
+//			(t->di == READ)? 'r':'w');
 
 	m->seq ++;
 

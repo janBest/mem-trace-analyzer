@@ -111,9 +111,9 @@ int main(int argc, char **argv){
 	
 	//instrumentor_push(&ctx, checker_create(N, st, M, ss));
 	instrumentor_push(&ctx, logging_create(n));
-	instrumentor_push(&ctx, cpu_create(N, 256));
+	instrumentor_push(&ctx, cpu_create(256));
 	instrumentor_push(&ctx, ckpt_create(n, M));
-	instrumentor_push(&ctx, cpu_create(N, 256));
+	instrumentor_push(&ctx, cpu_create(256));
 
 
 	g = tgen_create(N, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE

@@ -14,8 +14,8 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 	struct logging_meta* m = (struct logging_meta*)meta;
 	struct wrapper_t* wrapper;
 
-	printf("log %lld %lld %c\n", n, t->addr,
-			(t->di == READ)? 'r':'w');
+//	printf("log %lld %lld %c\n", n, t->addr,
+//			(t->di == READ)? 'r':'w');
 	//update transaction info
 	m->seq ++;
 	if(m->seq > m->len){
