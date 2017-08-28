@@ -10,8 +10,10 @@
 #define READ  1
 #define WRITE 2
 
-#define CACHELINE_SIZE 64
-#define PAGE_SIZE (4096 / CACHELINE_SIZE)
+#define WORD_SIZE 8
+//#define PAGE_SIZE (4096 / CACHELINE_SIZE)
+#define PAGE_SIZE (4096 / WORD_SIZE)
+#define CACHELINE_SIZE (64 / WORD_SIZE)
 
 struct tgen{
 	struct trace_t *traces;

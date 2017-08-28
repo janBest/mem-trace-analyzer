@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include "zipf.h"
 
 double zipf_cdf(double x, double s, double N){
@@ -22,7 +22,7 @@ uint64_t inverse_cdf(double p, double s, double N){
 	double m, mx, mxx, mxxx, a, b, newx;
 
 	D = D * p;
-	
+//	printf("p s N: %lf %lf %lf\n", p, s, N);
 	while(1){
 		m = pow(x, -2 - s);
 		mx = m * x;
@@ -33,6 +33,7 @@ uint64_t inverse_cdf(double p, double s, double N){
 		b = 12 * mxx + 6 * (s * mx) + (m * s * (s + 1));
 		newx = x - a / b;
 		newx = (newx < 1) ? 1 : newx;
+//		printf("x newx (nex - x): %lf %lf %lf\n", x, newx, (newx-x));
 		if(fabs(newx - x) <= 0.01)
 			return (uint64_t)newx;
 		x = newx;

@@ -32,7 +32,7 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 	if(m->seq > m->len){
 		m->ap_seq ++;
 		m->seq = 0;	
-	} 
+ 	} 
 	
 	if((l = hash_lookup(m->vtable, vhpage, comp_vhpage))){ 
 		mapping = list_entry(l, struct mapping_t, list);
@@ -42,6 +42,7 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 			mapping->phpage = m->max_phpage ++;
 			mapping->last_write_ap = m->ap_seq;
 			m->remap_count++;
+//			printf("1 remap %lld -> %lld\n", vhpage, mapping->phpage);
 	 	}
 		
 		if((t->di == READ) && 
@@ -61,13 +62,14 @@ void ckpt_instrument(void *meta, struct trace_t *t, int64_t n){
 			hash_insert(m->vtable, vhpage, &mapping->list);
 			m->remap_count++;
 			phpage = mapping->phpage;
+		//	printf("2 remap %lld -> %lld\n", vhpage, mapping->phpage);
 
 		} else{
 			// read something that have not been written before
 			assert(vhpage < m->vh_size);
 			m->addr_count++;
 			phpage = vhpage;
-		}		
+		}	  	
  	} 
 	
 	(t->di == READ)?m->reads++:m->writes++;
@@ -81,7 +83,7 @@ void ckpt_end(void *meta){
 	
 	struct ckpt_meta* m = (struct ckpt_meta*)meta;
 
-	printf("active periods: %lld remap: %lld addr translation: %lld reads: %lld writes: %lld\n", 
+	printf("ckpt active_periods: %lld remap: %lld addr_translation: %lld reads: %lld writes: %lld\n", 
 			m->ap_seq, m->remap_count, m->addr_count,
 			m->reads, m->writes);
 

@@ -64,13 +64,13 @@ void tgen_work(struct tgen *g, int64_t n){
 				sd = (c <= 3) ? zipf_generator(&g->sd_zh): (rand() % g->M);
 				sd = ((rand()%100) < 50)? sd : -sd;
 				
-				for(j = 1; j  <= 2; j++){
+ 				for(j = 1; j  <= 2; j++){
 					try = laddr + sd;
 //					printf("n %lld last-addr %lld sd %lld cur-addr %lld : try %lld\n", 
 //							i, laddr, sd, try, c);
 				 
 					if(is_addr_valid(try, g->M)
-	 			 			&&!BMap.check(g->bm, try)){
+ 	 			 			&&!BMap.check(g->bm, try)){
 						goto gen_sd_finished;
 					}
 					sd = sd * (-1);

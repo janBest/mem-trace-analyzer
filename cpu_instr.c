@@ -4,6 +4,7 @@
 #include "cpu_instr.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 uint32_t comp_lru(uint64_t addr, struct list_head *l){
 	struct access_t* access;
@@ -27,7 +28,7 @@ void cpu_instrument(void *meta, struct trace_t *t, int64_t n){
 //			(t->di == READ)? 'r':'w');
 	
 	m->total++;
-	if((l = hash_lookup(m->hash, t->addr, comp_lru))){ 
+	if((l = hash_lookup(m->hash, (t->addr / CACHELINE_SIZE), comp_lru))){ 
 		//hit
 		access = list_entry(l, struct access_t, hash_list);
 		list_move_tail(&(access->lru_list), &(m->lru_head));
@@ -47,7 +48,7 @@ void cpu_instrument(void *meta, struct trace_t *t, int64_t n){
 		}
 		assert(m->count < m->L1_size);
 		access = (struct access_t *)malloc(sizeof(struct access_t));
-		access->addr = t->addr;
+		access->addr = (t->addr / CACHELINE_SIZE);
 
 		list_add_tail(&(access->lru_list), &(m->lru_head));
 		hash_insert(m->hash, access->addr, &access->hash_list);
@@ -60,7 +61,7 @@ void cpu_instrument(void *meta, struct trace_t *t, int64_t n){
 void cpu_end(void *meta){
 	struct cpu_meta* m = (struct cpu_meta*)meta;
 
-	printf("L1 miss ratio: %lld / %lld = %0.2f \n", m->misses, m->total, (float)m->misses/m->total);
+	printf("%s L1_miss_ratio: %0.2f \n", m->name, (float)m->misses/m->total);
 }
 
 
@@ -68,7 +69,7 @@ struct instr_func cpu_func = {cpu_begin,
 	cpu_instrument, 
 	cpu_end};
 
-struct instrumentor* cpu_create(uint64_t L1_sz){
+struct instrumentor* cpu_create(const char *name,uint64_t L1_sz){
 	struct instrumentor* i = (struct instrumentor*)malloc(sizeof(struct instrumentor));
 	struct cpu_meta* m = (struct cpu_meta*)malloc(sizeof(struct cpu_meta));
 	
@@ -78,6 +79,7 @@ struct instrumentor* cpu_create(uint64_t L1_sz){
 	m->count = 0;
 	m->total = 0;
 	m->misses = 0;
+	strcpy(m->name, name);
 	i->meta = m;
 	i->func = &cpu_func;
 	return i;

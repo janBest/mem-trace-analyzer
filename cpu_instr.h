@@ -15,9 +15,10 @@ struct cpu_meta{
 	uint64_t count;
 	uint64_t misses;
 	uint64_t total;
+	char name[100];
 };
 
-struct instrumentor* cpu_create(uint64_t L1_sz);
+struct instrumentor* cpu_create(const char *name,uint64_t L1_sz);
 void cpu_free(struct instrumentor *i);
 
 #endif

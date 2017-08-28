@@ -28,12 +28,13 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 	//track dirty cache line
 	if(t->di == WRITE){
 		
-		if(!hash_lookup(m->line_track, t->addr, comp_addr)){ 
+		if(!hash_lookup(m->line_track, (t->addr / CACHELINE_SIZE), comp_addr)){ 
 			//new cacheline dirtied in a transaction
 			m->flushes ++;
 			wrapper = (struct wrapper_t *)malloc(sizeof(struct wrapper_t));
-			wrapper->addr = t->addr;
-			hash_insert(m->line_track, t->addr, &wrapper->list);
+			wrapper->addr = t->addr / CACHELINE_SIZE;
+//			printf("new cache line dirtied %lld\n", t->addr / CACHELINE_SIZE);
+			hash_insert(m->line_track, (t->addr /CACHELINE_SIZE), &wrapper->list);
 		} 
 	}
 
@@ -44,7 +45,7 @@ void logging_instrument(void *meta, struct trace_t *t, int64_t n){
 void logging_end(void *meta){
 	
 	struct logging_meta* m = (struct logging_meta*)meta;
-	printf("tr: %lld flushes: %lld reads:%lld writes:%lld\n", 
+	printf("logging tr: %lld flushes: %lld reads: %lld writes: %lld\n", 
 			m->tr_seq, m->flushes, m->reads, m->writes);
 }
 
