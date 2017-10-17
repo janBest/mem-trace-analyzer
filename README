@@ -1,0 +1,14 @@
+
+It contains:
+
+1) a trace generator that can generates memory accesses(word granularity) 
+with customizable spatial/temporal locality, read/write ratio, memory size..
+
+2) a intrumentor framework that allow us to collect useful information 
+from the workload.
+
+3) memory accesses are passed to a set of intrumentors one by one. 
+Instrumetors are allowed to change the memory accesses.
+
+Warn: not release-ready. bugs(e.g memory leaks) do exist.
+  
