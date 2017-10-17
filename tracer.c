@@ -21,7 +21,7 @@ struct tgen* tgen_create(uint64_t N, uint64_t M,
 	g->traces = NULL;
 	g->tsz = 0;
 	
-	g->bm = BMap.New(M);
+	g->bm = BMap.New(M);//bits
 
 	g->N = N;
 	g->M = M;
@@ -48,15 +48,15 @@ void tgen_work(struct tgen *g, int64_t n){
 	g->tsz = n;
 	
 	g->traces[0].seq = 0;
-	g->traces[0].addr = rand() % g->M;
+	g->traces[0].addr = rand() % g->M;//word granularity
 	g->traces[0].di = ((rand() % 100) < g->read_ratio) ? READ: WRITE;
 	BMap.set(g->bm, g->traces[0].addr);
 	laddr = g->traces[0].addr;
-//	printf("n %d addr %lld\n", 0, g->traces[0].addr);
+	printf("n %d addr %lld\n", 0, g->traces[0].addr);
 	
 	for(i = 1; i < g->tsz; i++){
 		td = zipf_generator(&g->td_zh);	
-//		printf("n %lld td %lld\n", i, td);
+		printf("n %lld td %lld\n", i, td);
 
 		if((i - td) < 0){
 			c = 1;
@@ -66,8 +66,8 @@ void tgen_work(struct tgen *g, int64_t n){
 				
  				for(j = 1; j  <= 2; j++){
 					try = laddr + sd;
-//					printf("n %lld last-addr %lld sd %lld cur-addr %lld : try %lld\n", 
-//							i, laddr, sd, try, c);
+					printf("n %lld last-addr %lld sd %lld cur-addr %lld : try %lld\n", 
+							i, laddr, sd, try, c);
 				 
 					if(is_addr_valid(try, g->M)
  	 			 			&&!BMap.check(g->bm, try)){
@@ -86,13 +86,13 @@ gen_sd_finished:
 			BMap.set(g->bm, g->traces[i].addr);
 			laddr = g->traces[i].addr;
 		} else {
-//			printf("n %lld re-access %lld addr %lld\n", i, i - td, g->traces[i - td].addr);
+			printf("n %lld re-access %lld addr %lld\n", i, i - td, g->traces[i - td].addr);
 			g->traces[i].seq = i;
 			g->traces[i].addr = g->traces[i - td].addr;
 	 	}
 		g->traces[i].di = ((rand() % 100) < g->read_ratio) ? READ: WRITE;
 	}
-//   printf("tried %lld sd chosen %lld avg %0.2f\n", tried, chosen, (float)tried/chosen);	
+   printf("tried %lld sd chosen %lld avg %0.2f\n", tried, chosen, (float)tried/chosen);	
 	return;
 }
 

@@ -13,8 +13,8 @@
 #include "logging_instr.h"
 
 #define INSTR_MAX 10
-#define L1_SIZE 256
-#define ZIPF_INFINITE (4*1024*1024*1024l)
+#define L1_SIZE 256 //WORD, 2kb
+#define ZIPF_INFINITE (1024*1024*1024*1024l)
 
 extern char *optarg;
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv){
 
 
 	N = 4000000;
-	M = 4*1024*1024ll;
+	M = 4*1024*1024ll / WORD_SIZE;
 	st = 0;
 	ss = 0;
 	r = 0;
@@ -123,7 +123,7 @@ int main(int argc, char **argv){
 	instrumentor_push(&ctx, cpu_create("cpu2", L1_SIZE));
 
 
-	g = tgen_create(ZIPF_INFINITE, M, st, ss, r); // MEMORY SIZE IN CACHE SIZE
+	g = tgen_create(ZIPF_INFINITE, M, st, ss, r); // MEMORY SIZE IN WORD SIZE
 	tgen_work(g, N);
 	tgen_replay(g, rreplay, &ctx);
 	

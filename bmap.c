@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include "bmap.h"
 
-unsigned int BMAP_CEIL_SIZE( unsigned int bits )
+uint64_t BMAP_CEIL_SIZE( uint64_t bits )
 {
-	unsigned int tmp = bits + BMAP_DEFAULT_ALIGNMENT;
+	uint64_t tmp = bits + BMAP_DEFAULT_ALIGNMENT;
 
 	assert( tmp != 0 );
 
@@ -25,10 +25,10 @@ BMAP_Class BMap =
 };
 
 
-BMAP* BMap_New( unsigned int bits )
+BMAP* BMap_New( uint64_t bits )
 {
 	BMAP* ret = NULL;
-	unsigned int adjBits = BMAP_CEIL_SIZE( bits ),
+	uint64_t adjBits = BMAP_CEIL_SIZE( bits ),
 				 bytes = 0;
 
 	assert( adjBits != 0 );
@@ -49,9 +49,9 @@ BMAP* BMap_New( unsigned int bits )
 	return( ret );
 }
 
-void BMap_set( BMAP* bm, unsigned int idx )
+void BMap_set( BMAP* bm, uint64_t idx )
 {
-	unsigned int byte = 0,
+	uint64_t byte = 0,
 				 bit = 0;
 	unsigned char mask = 0;
 
@@ -69,9 +69,9 @@ void BMap_set( BMAP* bm, unsigned int idx )
 }
 
 
-void BMap_clear( BMAP* bm, unsigned int idx )
+void BMap_clear( BMAP* bm, uint64_t idx )
 {
-	unsigned int byte = 0,
+	uint64_t byte = 0,
 				 bit = 0;
 	unsigned char mask = 0;
 
@@ -88,9 +88,9 @@ void BMap_clear( BMAP* bm, unsigned int idx )
 	bm->bits[ byte ] &= mask;
 }
 
-bool BMap_check( BMAP* bm, unsigned int idx )
+bool BMap_check( BMAP* bm, uint64_t idx )
 {
-	unsigned int byte = 0,
+	uint64_t byte = 0,
 				 bit = 0;
 	unsigned char mask = 0;
 
@@ -109,7 +109,7 @@ bool BMap_check( BMAP* bm, unsigned int idx )
 	if( ( bm->bits[ byte ] & mask ) == 0 )
 	{
 		return( false );
-	}
+	} 
 
 	return( true );
 }

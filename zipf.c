@@ -20,6 +20,7 @@ uint64_t inverse_cdf(double p, double s, double N){
 	double D = 12 * (pow(N, 1 - s) - 1) / (1 - s) + 6 
 		- 6 * pow(N, -s) + s - pow(N, -1 - s) * s;
 	double m, mx, mxx, mxxx, a, b, newx;
+	uint32_t count = 0;
 
 	D = D * p;
 //	printf("p s N: %lf %lf %lf\n", p, s, N);
@@ -34,9 +35,11 @@ uint64_t inverse_cdf(double p, double s, double N){
 		newx = x - a / b;
 		newx = (newx < 1) ? 1 : newx;
 //		printf("x newx (nex - x): %lf %lf %lf\n", x, newx, (newx-x));
-		if(fabs(newx - x) <= 0.01)
+		if((fabs(newx - x) <= 0.01) 
+				|| (count >= 100000))
 			return (uint64_t)newx;
 		x = newx;
+		count++;
 	}
 
 }

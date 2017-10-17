@@ -42,27 +42,27 @@
 
 typedef struct
 {
-   unsigned int sizeBits;
-   unsigned int sizeBytes;
+   uint64_t sizeBits;
+   uint64_t sizeBytes;
    unsigned char* bits;
 } BMAP;
 
 typedef struct
 {
-   BMAP* ( *New )( unsigned int bits );
+   BMAP* ( *New )( uint64_t bits );
    void ( *free )( BMAP* bm );
-   void ( *set )( BMAP* bm, unsigned int idx );
-   void ( *clear )( BMAP* bm, unsigned int idx );
-   bool ( *check )( BMAP* bm, unsigned int idx );
+   void ( *set )( BMAP* bm, uint64_t idx );
+   void ( *clear )( BMAP* bm, uint64_t idx );
+   bool ( *check )( BMAP* bm, uint64_t idx );
 } BMAP_Class;
 
-unsigned int BMAP_CEIL_SIZE( unsigned int bits );
+uint64_t BMAP_CEIL_SIZE( uint64_t bits );
 
-BMAP* BMap_New( unsigned int bits );
+BMAP* BMap_New( uint64_t bits );
 void BMap_free( BMAP* bm );
-void BMap_set( BMAP* bm, unsigned int idx );
-void BMap_clear( BMAP* bm, unsigned int idx );
-bool BMap_check( BMAP* bm, unsigned int idx );
+void BMap_set( BMAP* bm, uint64_t idx );
+void BMap_clear( BMAP* bm, uint64_t idx );
+bool BMap_check( BMAP* bm, uint64_t idx );
 
 extern BMAP_Class BMap;
 
